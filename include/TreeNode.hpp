@@ -30,13 +30,7 @@ public:
   TreeNode(int d) :
     depth(d), right(NULL), left(NULL), is_leaf(false), is_split(false) {};
 
-  ~TreeNode()
-  {
-    if (left)
-      delete left;
-    if (right)
-      delete right;
-  };
+  ~TreeNode() {};
 
   int
   getDepth()
@@ -96,7 +90,7 @@ public:
   void
   addLeftChild
     (
-    TreeNode<Sample> *left_child
+    std::shared_ptr<TreeNode<Sample>> left_child
     )
   {
     left = left_child;
@@ -105,7 +99,7 @@ public:
   void
   addRightChild
     (
-    TreeNode<Sample> *right_child
+    std::shared_ptr<TreeNode<Sample>> right_child
     )
   {
     right = right_child;
@@ -114,7 +108,7 @@ public:
   bool
   eval
     (
-    const Sample *s
+    const std::shared_ptr<Sample> s
     ) const
   {
     return s->eval(split);
@@ -122,8 +116,8 @@ public:
 
   Leaf leaf;
   Split split;
-  TreeNode<Sample> *right;
-  TreeNode<Sample> *left;
+  std::shared_ptr<TreeNode<Sample>> right;
+  std::shared_ptr<TreeNode<Sample>> left;
 
 private:
   int depth;

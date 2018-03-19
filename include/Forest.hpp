@@ -61,7 +61,7 @@ public:
   void
   evaluateMT
     (
-    const Sample *sample,
+    const std::shared_ptr<Sample> sample,
     std::shared_ptr<Leaf> leaf
     ) const
   {

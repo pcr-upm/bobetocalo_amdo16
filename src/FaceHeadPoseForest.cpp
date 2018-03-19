@@ -260,16 +260,16 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   const Forest<HeadPoseSample> &forest
   )
 {
-  /// Reserve patches like a dense extraction for stride == 1
+  /// Reserve patches like a dense extraction for stride 1
   int width = sample->m_feature_channels[0].cols - forest.getParam().patch_size.width;
   int height = sample->m_feature_channels[0].rows - forest.getParam().patch_size.height;
-  std::vector<HeadPoseSample> samples;
+  std::vector<std::shared_ptr<HeadPoseSample>> samples;
   samples.reserve(width * height);
   for (int x=0; x < width; x += hp_forest_param.stride)
     for (int y=0; y < height; y += hp_forest_param.stride)
     {
       cv::Rect patch_box(x, y, forest.getParam().patch_size.width, forest.getParam().patch_size.height);
-      samples.push_back(HeadPoseSample(sample, patch_box));
+      samples.push_back(std::make_shared<HeadPoseSample>(HeadPoseSample(sample, patch_box)));
     }
 
   /// Process each patch
@@ -278,7 +278,7 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   std::vector<std::shared_ptr<HeadPoseLeaf>> leafs;
   leafs.resize(samples.size() * num_trees);
   for (unsigned int i=0; i < samples.size(); i++)
-    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, &samples[i], leafs[i*num_trees]));
+    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, samples[i], leafs[i*num_trees]));
   e.join_all();
 
   /// Parse collected leafs

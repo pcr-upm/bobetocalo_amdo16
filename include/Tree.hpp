@@ -56,7 +56,7 @@ public:
 
     UPM_PRINT("Start training");
     m_ticks = static_cast<double>(cv::getTickCount());
-    root = new TreeNode<Sample>(0);
+    root = std::make_shared<TreeNode<Sample>>(TreeNode<Sample>(0));
     grow(root, samples);
     save();
   };
@@ -96,7 +96,7 @@ public:
   void
   grow
     (
-    TreeNode<Sample> *node,
+    std::shared_ptr<TreeNode<Sample>> node,
     const std::vector<std::shared_ptr<Sample>> &samples
     )
   {
@@ -139,10 +139,10 @@ public:
           node->createSplit(best_split);
           i_node++;
 
-          TreeNode<Sample> *left = new TreeNode<Sample>(depth+1);
+          std::shared_ptr<TreeNode<Sample>> left = std::make_shared<TreeNode<Sample>>(TreeNode<Sample>(depth+1));
           node->addLeftChild(left);
 
-          TreeNode<Sample> *right = new TreeNode<Sample>(depth+1);
+          std::shared_ptr<TreeNode<Sample>> right = std::make_shared<TreeNode<Sample>>(TreeNode<Sample>(depth+1));
           node->addRightChild(right);
 
           saveAuto();
@@ -170,8 +170,8 @@ public:
   static void
   evaluateMT
     (
-    const Sample *sample,
-    TreeNode<Sample> *node,
+    const std::shared_ptr<Sample> sample,
+    std::shared_ptr<TreeNode<Sample>> node,
     std::shared_ptr<Leaf> leaf
     )
   {
@@ -242,7 +242,7 @@ public:
     }
   };
 
-  TreeNode<Sample> *root; // root node of the tree
+  std::shared_ptr<TreeNode<Sample>> root; // root node of the tree
 
 private:
   bool
@@ -318,7 +318,7 @@ private:
     ar & i_node;
     ar & m_param;
     ar & m_save_path;
-    ar & root;
+//    ar & root;
   }
 };
 
