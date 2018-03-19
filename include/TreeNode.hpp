@@ -60,7 +60,7 @@ public:
   void
   createLeaf
     (
-    const std::vector<Sample*> &samples
+    const std::vector<std::shared_ptr<Sample>> &samples
     )
   {
     Sample::makeLeaf(leaf, samples);

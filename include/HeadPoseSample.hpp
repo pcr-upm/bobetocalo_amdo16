@@ -90,7 +90,7 @@ public:
   static void
   generateSplit
     (
-    const std::vector<HeadPoseSample*> &samples,
+    const std::vector<std::shared_ptr<HeadPoseSample>> &samples,
     boost::mt19937 *rng,
     cv::Size patch_size,
     Split &split
@@ -103,8 +103,8 @@ public:
   static double
   evalSplit
     (
-    const std::vector<HeadPoseSample*> &setA,
-    const std::vector<HeadPoseSample*> &setB
+    const std::vector<std::shared_ptr<HeadPoseSample>> &setA,
+    const std::vector<std::shared_ptr<HeadPoseSample>> &setB
     );
 
   /**
@@ -115,7 +115,7 @@ public:
   makeLeaf
     (
     HeadPoseLeaf &leaf,
-    const std::vector<HeadPoseSample*> &set
+    const std::vector<std::shared_ptr<HeadPoseSample>> &set
     );
 
 private:
@@ -127,7 +127,7 @@ private:
   static double
   entropyHeadpose
     (
-    const std::vector<HeadPoseSample*> &set
+    const std::vector<std::shared_ptr<HeadPoseSample>> &set
     );
 
   boost::shared_ptr<ImageSample> m_image;

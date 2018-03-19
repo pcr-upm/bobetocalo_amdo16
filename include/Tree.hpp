@@ -41,7 +41,7 @@ public:
 
   Tree
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     ForestParam param,
     boost::mt19937 *rng,
     std::string save_path
@@ -62,10 +62,7 @@ public:
   };
 
   virtual
-  ~Tree()
-  {
-    delete root;
-  };
+  ~Tree() {};
 
   bool
   isFinished()
@@ -78,7 +75,7 @@ public:
   void
   update
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     boost::mt19937* rng
     )
   {
@@ -100,7 +97,7 @@ public:
   grow
     (
     TreeNode<Sample> *node,
-    const std::vector<Sample*> &samples
+    const std::vector<std::shared_ptr<Sample>> &samples
     )
   {
     const int depth = node->getDepth();
@@ -122,7 +119,7 @@ public:
       {
         // Only in reload mode
         Split best_split = node->getSplit();
-        std::vector< std::vector<Sample*> > sets;
+        std::vector<std::vector<std::shared_ptr<Sample>>> sets;
         applyOptimalSplit(samples, best_split, sets);
         i_node++;
         UPM_PRINT("  (2) " << 100*static_cast<float>(i_node)/static_cast<float>(m_num_nodes)
@@ -137,7 +134,7 @@ public:
         Split best_split;
         if (findOptimalSplit(samples, best_split))
         {
-          std::vector< std::vector<Sample*> > sets;
+          std::vector<std::vector<std::shared_ptr<Sample>>> sets;
           applyOptimalSplit(samples, best_split, sets);
           node->createSplit(best_split);
           i_node++;
@@ -259,7 +256,7 @@ private:
   bool
   findOptimalSplit
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     Split &best_split
     )
   {
@@ -283,9 +280,9 @@ private:
   void
   applyOptimalSplit
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     Split &best_split,
-    std::vector< std::vector<Sample*> > &sets
+    std::vector<std::vector<std::shared_ptr<Sample>>> &sets
     )
   {
     // Process each patch with the optimal R1 and R2

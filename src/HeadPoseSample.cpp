@@ -79,7 +79,7 @@ HeadPoseSample::eval
 void
 HeadPoseSample::generateSplit
   (
-  const std::vector<HeadPoseSample*> &samples,
+  const std::vector<std::shared_ptr<HeadPoseSample>> &samples,
   boost::mt19937 *rng,
   cv::Size patch_size,
   Split &split
@@ -101,8 +101,8 @@ HeadPoseSample::generateSplit
 double
 HeadPoseSample::evalSplit
   (
-  const std::vector<HeadPoseSample*> &setA,
-  const std::vector<HeadPoseSample*> &setB
+  const std::vector<std::shared_ptr<HeadPoseSample>> &setA,
+  const std::vector<std::shared_ptr<HeadPoseSample>> &setB
   )
 {
   double sizeA = setA.size(), sizeB = setB.size();
@@ -123,7 +123,7 @@ void
 HeadPoseSample::makeLeaf
   (
   HeadPoseLeaf &leaf,
-  const std::vector<HeadPoseSample*> &set
+  const std::vector<std::shared_ptr<HeadPoseSample>> &set
   )
 {
   leaf.hp_histogram.assign(upm::HP_LABELS.size(), 0);
@@ -151,7 +151,7 @@ HeadPoseSample::makeLeaf
 double
 HeadPoseSample::entropyHeadpose
   (
-  const std::vector<HeadPoseSample*> &set
+  const std::vector<std::shared_ptr<HeadPoseSample>> &set
   )
 {
   double mean = 0, variance = 0;

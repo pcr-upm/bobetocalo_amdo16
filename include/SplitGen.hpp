@@ -45,7 +45,7 @@ public:
 
   SplitGen
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     std::vector<Split> &splits,
     boost::mt19937 *rng,
     cv::Size patch_size,
@@ -92,9 +92,9 @@ public:
   static void
   splitSamples
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     const std::vector<IntIndex> &val_set,
-    std::vector< std::vector<Sample*> > &sets,
+    std::vector<std::vector<std::shared_ptr<Sample>>> &sets,
     int thresh
     )
   {
@@ -109,7 +109,7 @@ public:
     sets[1].resize(samples.size() - sets[0].size());
 
     std::vector<IntIndex>::const_iterator it;
-    typename std::vector<Sample*>::iterator it_sample;
+    typename std::vector<std::shared_ptr<Sample>>::iterator it_sample;
     it = val_set.begin();
     for (it_sample = sets[0].begin(); it_sample < sets[0].end(); ++it_sample, ++it)
       (*it_sample) = samples[it->second];
@@ -125,7 +125,7 @@ private:
   void
   findThreshold
     (
-    const std::vector<Sample*> &samples,
+    const std::vector<std::shared_ptr<Sample>> &samples,
     boost::mt19937 *rng,
     int thresholds,
     const std::vector<IntIndex> &val_set,
@@ -146,7 +146,7 @@ private:
       for (int i=0; i < thresholds; ++i)
       {
         // Generate some random thresholds
-        std::vector< std::vector<Sample*> > sets;
+        std::vector<std::vector<std::shared_ptr<Sample>>> sets;
         int thresh = rand_thr() + min_val;
         splitSamples(samples, val_set, sets, thresh);
 
@@ -165,10 +165,10 @@ private:
     }
   };
 
-  const std::vector<Sample*> &m_samples; // set of patches
-  std::vector<Split> &m_splits;          // splitting candidates
-  cv::Size m_patch_size;                 // patch size to generate splits
-  int m_thresholds;                      // number of thresholds to test
+  const std::vector<std::shared_ptr<Sample>> &m_samples; // set of patches
+  std::vector<Split> &m_splits; // splitting candidates
+  cv::Size m_patch_size;        // patch size to generate splits
+  int m_thresholds;             // number of thresholds to test
 };
 
 #endif /* SPLIT_GEN_HPP */

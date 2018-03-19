@@ -140,7 +140,7 @@ FaceHeadPoseForest::train
     UPM_PRINT("Number of images per class: " << imgs_per_class);
     UPM_PRINT("Total number of images: " << rnd_data.size());
 
-    std::vector<HeadPoseSample*> hp_samples;
+    std::vector<std::shared_ptr<HeadPoseSample>> hp_samples;
     hp_samples.reserve(rnd_data.size()*hp_forest_param.npatches);
     UPM_PRINT("Reserved patches: " << rnd_data.size()*hp_forest_param.npatches);
 
@@ -174,8 +174,8 @@ FaceHeadPoseForest::train
       boost::variate_generator< boost::mt19937&, boost::uniform_int<> > rand_y(rng, dist_y);
       for (int j=0; j < hp_forest_param.npatches; j++)
       {
-        cv::Rect bbox = cv::Rect(rand_x(), rand_y(), hp_forest_param.patch_size.width, hp_forest_param.patch_size.height);
-        HeadPoseSample *hps = new HeadPoseSample(sample, bbox, rnd_data[i].headpose);
+        cv::Rect bbox_patch = cv::Rect(rand_x(), rand_y(), hp_forest_param.patch_size.width, hp_forest_param.patch_size.height);
+        std::shared_ptr<HeadPoseSample> hps(new HeadPoseSample(sample, bbox_patch, rnd_data[i].headpose));
         hp_samples.push_back(hps);
 //        hps->show();
       }
@@ -188,8 +188,6 @@ FaceHeadPoseForest::train
       tree = new Tree<HeadPoseSample>(hp_samples, hp_forest_param, &rng, tree_path);
 
     /// Memory patches allocated dynamically no longer needed
-    for (auto it = hp_samples.begin(); it != hp_samples.end(); it++)
-      delete *it;
     delete tree;
   }
 };
@@ -271,17 +269,14 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   std::vector<HeadPoseSample> samples;
   samples.reserve(width * height);
   for (int x=0; x < width; x += hp_forest_param.stride)
-  {
     for (int y=0; y < height; y += hp_forest_param.stride)
     {
       cv::Rect patch_box(x, y, forest.getParam().patch_size.width, forest.getParam().patch_size.height);
       samples.push_back(HeadPoseSample(sample, patch_box));
     }
-  }
 
   /// Process each patch
-  int num_treads = boost::thread::hardware_concurrency();
-  boost::thread_pool::ThreadPool e(num_treads);
+  boost::thread_pool::ThreadPool e(boost::thread::hardware_concurrency());
   int num_trees = forest.numberOfTrees();
   std::vector<HeadPoseLeaf*> leafs;
   leafs.resize(samples.size() * num_trees);
@@ -292,19 +287,19 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   /// Parse collected leafs
   const float MAX_VARIANCE = 400.0f;
   std::vector<int> histogram(HP_LABELS.size(), 0);
-  for (auto it_leaf = leafs.begin(); it_leaf < leafs.end(); it_leaf++)
+  for (HeadPoseLeaf *leaf : leafs)
   {
     /// Filter out leaves with a high variance which are less informative
-    if ((*it_leaf)->hp_variance > MAX_VARIANCE)
+    if (leaf->hp_variance > MAX_VARIANCE)
       continue;
 
-    for (unsigned int j=0; j < (*it_leaf)->hp_histogram.size(); j++)
-      histogram[j] += (*it_leaf)->hp_histogram[j];
+    for (unsigned int j=0; j < leaf->hp_histogram.size(); j++)
+      histogram[j] += leaf->hp_histogram[j];
   }
 
   /// Classification
-  int yaw_idx = std::distance(histogram.begin(), std::max_element(histogram.begin(), histogram.end()));
-  return cv::Point3f(HP_LABELS[yaw_idx],-FLT_MAX,-FLT_MAX);
+  int yaw_idx = static_cast<int>(std::distance(histogram.begin(), std::max_element(histogram.begin(), histogram.end())));
+  return cv::Point3f(HP_LABELS[yaw_idx],0,0);
 };
 
 } // namespace upm
