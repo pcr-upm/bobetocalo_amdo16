@@ -31,13 +31,13 @@ public:
   void
   addTree
     (
-    Tree<Sample> *tree
+    std::shared_ptr<Tree<Sample>> tree
     )
   {
     m_trees.push_back(tree);
   };
 
-  Tree<Sample>*
+  std::shared_ptr<Tree<Sample>>
   getTree
     (
     int idx
@@ -47,29 +47,26 @@ public:
   };
 
   int
-  numberOfTrees
-    () const
+  numberOfTrees() const
   {
     return static_cast<int>(m_trees.size());
   };
 
   void
-  cleanForest
-    ()
+  cleanForest()
   {
     m_trees.clear();
   };
 
-  // Called from "getHeadPoseVotesMT" and "getFacialFeaturesVotesMT"
   void
   evaluateMT
     (
     const Sample *sample,
-    Leaf **leafs
+    std::shared_ptr<Leaf> leaf
     ) const
   {
-    for (unsigned int i=0; i < numberOfTrees(); i++, leafs++)
-      m_trees[i]->evaluateMT(sample, m_trees[i]->root, leafs);
+    for (unsigned int i=0; i < numberOfTrees(); i++)
+      m_trees[i]->evaluateMT(sample, m_trees[i]->root, leaf);
   };
 
   bool
@@ -104,11 +101,11 @@ public:
   load_tree
     (
     std::string url,
-    std::vector<Tree<Sample>*> &trees
+    std::vector<std::shared_ptr<Tree<Sample>>> &trees
     )
   {
-    Tree<Sample> *tree;
-    if (!Tree<Sample>::load(&tree, url))
+    std::shared_ptr<Tree<Sample>> tree;
+    if (not Tree<Sample>::load(tree, url))
       return false;
 
     if (tree->isFinished())
@@ -119,7 +116,6 @@ public:
     else
     {
       UPM_PRINT("  Tree is not finished successfully")
-      delete tree;
       return false;
     }
   };
@@ -141,7 +137,7 @@ public:
   };
 
 private:
-  std::vector<Tree<Sample>*> m_trees;
+  std::vector<std::shared_ptr<Tree<Sample>>> m_trees;
   ForestParam m_forest_param;
 
   friend class boost::serialization::access;

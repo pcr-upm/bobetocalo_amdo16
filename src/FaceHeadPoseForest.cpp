@@ -128,8 +128,8 @@ FaceHeadPoseForest::train
     char tree_path[200];
     sprintf(tree_path, "%stree_%03d.txt", hp_forest_param.tree_path.c_str(), tree_idx);
     UPM_PRINT("Read head pose regression tree: " << tree_path);
-    Tree<HeadPoseSample> *tree;
-    bool is_tree_load = Tree<HeadPoseSample>::load(&tree, tree_path);
+    std::shared_ptr<Tree<HeadPoseSample>> tree;
+    bool is_tree_load = Tree<HeadPoseSample>::load(tree, tree_path);
 
     /// Select random annotations for this head-pose
     std::vector<FaceAnnotation> rnd_data;
@@ -185,10 +185,7 @@ FaceHeadPoseForest::train
     if (is_tree_load and (not tree->isFinished()))
       tree->update(hp_samples, &rng);
     else
-      tree = new Tree<HeadPoseSample>(hp_samples, hp_forest_param, &rng, tree_path);
-
-    /// Memory patches allocated dynamically no longer needed
-    delete tree;
+      tree = std::make_shared<Tree<HeadPoseSample>>(Tree<HeadPoseSample>(hp_samples, hp_forest_param, &rng, tree_path));
   }
 };
 
@@ -278,16 +275,16 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   /// Process each patch
   boost::thread_pool::ThreadPool e(boost::thread::hardware_concurrency());
   int num_trees = forest.numberOfTrees();
-  std::vector<HeadPoseLeaf*> leafs;
+  std::vector<std::shared_ptr<HeadPoseLeaf>> leafs;
   leafs.resize(samples.size() * num_trees);
   for (unsigned int i=0; i < samples.size(); i++)
-    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, &samples[i], &leafs[i*num_trees]));
+    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, &samples[i], leafs[i*num_trees]));
   e.join_all();
 
   /// Parse collected leafs
   const float MAX_VARIANCE = 400.0f;
   std::vector<int> histogram(HP_LABELS.size(), 0);
-  for (HeadPoseLeaf *leaf : leafs)
+  for (std::shared_ptr<HeadPoseLeaf> leaf : leafs)
   {
     /// Filter out leaves with a high variance which are less informative
     if (leaf->hp_variance > MAX_VARIANCE)

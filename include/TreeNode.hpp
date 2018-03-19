@@ -51,10 +51,10 @@ public:
     return is_leaf;
   };
 
-  Leaf*
+  std::shared_ptr<Leaf>
   getLeaf()
   {
-    return &leaf;
+    return std::make_shared<Leaf>(leaf);
   };
 
   void

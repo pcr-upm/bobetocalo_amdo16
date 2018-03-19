@@ -172,11 +172,11 @@ public:
     (
     const Sample *sample,
     TreeNode<Sample> *node,
-    Leaf **leaf
+    std::shared_ptr<Leaf> leaf
     )
   {
     if (node->isLeaf())
-      *leaf = node->getLeaf();
+      leaf = node->getLeaf();
     else
     {
       if (node->eval(sample))
@@ -189,7 +189,7 @@ public:
   static bool
   load
     (
-    Tree **tree,
+    std::shared_ptr<Tree> tree,
     std::string path
     )
   {
@@ -204,10 +204,8 @@ public:
     try
     {
       boost::archive::text_iarchive ia(ifs);
-      Tree *tree_aux = new Tree();
-      ia >> *tree_aux;
-      *tree = tree_aux;
-      if ((*tree)->isFinished())
+//      ia >> tree;
+      if (tree->isFinished())
       {
         UPM_PRINT("  Complete tree reloaded");
       }
@@ -224,12 +222,6 @@ public:
       ifs.close();
       return false;
     }
-    catch (int ex)
-    {
-      UPM_ERROR("  Exception: " << ex);
-      ifs.close();
-      return false;
-    }
   };
 
   void
@@ -239,7 +231,7 @@ public:
     {
       std::ofstream ofs(m_save_path.c_str());
       boost::archive::text_oarchive oa(ofs);
-      oa << *this; // it can also save unfinished trees
+//      oa << *this; // it can also save unfinished trees
       ofs.flush();
       ofs.close();
       UPM_PRINT("Complete tree saved: " << m_save_path);
