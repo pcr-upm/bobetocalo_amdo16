@@ -1,8 +1,10 @@
 /** ****************************************************************************
  *  @file    Forest.hpp
  *  @brief   Real-time facial feature detection
- *  @author  Matthias Dantone
- *  @date    2011/05
+ *  @author  Roberto Valle Fernandez
+ *  @date    2015/06
+ *  @copyright All rights reserved.
+ *  Software developed by UPM PCR Group: http://www.dia.fi.upm.es/~pcr
  ******************************************************************************/
 
 // ------------------ RECURSION PROTECTION -------------------------------------
@@ -12,8 +14,8 @@
 // ----------------------- INCLUDES --------------------------------------------
 #include <trace.hpp>
 #include <Tree.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/vector.hpp>
 
 /** ****************************************************************************
  * @class Forest
@@ -130,8 +132,7 @@ public:
   };
 
   ForestParam
-  getParam
-    () const
+  getParam() const
   {
     return m_forest_param;
   };
@@ -140,7 +141,7 @@ private:
   std::vector<std::shared_ptr<Tree<Sample>>> m_trees;
   ForestParam m_forest_param;
 
-  friend class boost::serialization::access;
+  friend class cereal::access;
   template<class Archive>
   void serialize(Archive &ar, const unsigned int version)
   {

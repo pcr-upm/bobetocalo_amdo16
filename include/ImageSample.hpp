@@ -1,8 +1,10 @@
 /** ****************************************************************************
  *  @file    ImageSample.hpp
  *  @brief   Real-time facial feature detection
- *  @author  Matthias Dantone
- *  @date    2011/05
+ *  @author  Roberto Valle Fernandez
+ *  @date    2015/06
+ *  @copyright All rights reserved.
+ *  Software developed by UPM PCR Group: http://www.dia.fi.upm.es/~pcr
  ******************************************************************************/
 
 // ------------------ RECURSION PROTECTION -------------------------------------
@@ -14,11 +16,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/serialization/access.hpp>
+#include <cereal/access.hpp>
 #include <opencv2/opencv.hpp>
 
-namespace boost {
-namespace serialization {
+namespace cereal {
 
   template<class Archive, class T>
   void serialize(Archive &ar, cv::Rect_<T> &rect, const unsigned int version)
@@ -29,8 +30,7 @@ namespace serialization {
     ar & rect.height;
   }
 
-} // namespace serialization
-} // namespace boost
+} // namespace cereal
 
 struct SimplePatchFeature
 {
@@ -83,7 +83,7 @@ struct SimplePatchFeature
   cv::Rect_<int> rect1;
   cv::Rect_<int> rect2;
 
-  friend class boost::serialization::access;
+  friend class cereal::access;
   template<class Archive>
   void serialize(Archive &ar, const unsigned int version)
   {

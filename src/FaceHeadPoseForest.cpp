@@ -126,7 +126,7 @@ FaceHeadPoseForest::train
   {
     /// Try to read the head-pose regression tree
     char tree_path[200];
-    sprintf(tree_path, "%stree_%03d.txt", hp_forest_param.tree_path.c_str(), tree_idx);
+    sprintf(tree_path, "%stree_%03d.bin", hp_forest_param.tree_path.c_str(), tree_idx);
     UPM_PRINT("Read head pose regression tree: " << tree_path);
     std::shared_ptr<Tree<HeadPoseSample>> tree;
     bool is_tree_load = Tree<HeadPoseSample>::load(tree, tree_path);

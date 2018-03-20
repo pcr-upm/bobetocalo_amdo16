@@ -1,8 +1,10 @@
 /** ****************************************************************************
  *  @file    FeatureChannelFactory.hpp
  *  @brief   Real-time facial feature detection
- *  @author  Matthias Dantone
- *  @date    2011/09
+ *  @author  Roberto Valle Fernandez
+ *  @date    2015/06
+ *  @copyright All rights reserved.
+ *  Software developed by UPM PCR Group: http://www.dia.fi.upm.es/~pcr
  ******************************************************************************/
 
 // ------------------ RECURSION PROTECTION -------------------------------------

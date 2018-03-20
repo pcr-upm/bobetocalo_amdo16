@@ -1,8 +1,10 @@
 /** ****************************************************************************
  *  @file    Tree.hpp
  *  @brief   Real-time facial feature detection
- *  @author  Matthias Dantone
- *  @date    2011/05
+ *  @author  Roberto Valle Fernandez
+ *  @date    2015/06
+ *  @copyright All rights reserved.
+ *  Software developed by UPM PCR Group: http://www.dia.fi.upm.es/~pcr
  ******************************************************************************/
 
 // ------------------ RECURSION PROTECTION -------------------------------------
@@ -17,14 +19,13 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/archives/binary.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 /** ****************************************************************************
  * @class Tree
@@ -203,8 +204,8 @@ public:
 
     try
     {
-      boost::archive::text_iarchive ia(ifs);
-//      ia >> tree;
+      cereal::BinaryInputArchive ia(ifs);
+      ia >> tree;
       if (tree->isFinished())
       {
         UPM_PRINT("  Complete tree reloaded");
@@ -216,10 +217,9 @@ public:
       ifs.close();
       return true;
     }
-    catch (boost::archive::archive_exception &ex)
+    catch (cereal::Exception &ex)
     {
       UPM_ERROR("  Exception during tree serialization: " << ex.what());
-      ifs.close();
       return false;
     }
   };
@@ -230,13 +230,13 @@ public:
     try
     {
       std::ofstream ofs(m_save_path.c_str());
-      boost::archive::text_oarchive oa(ofs);
-//      oa << *this; // it can also save unfinished trees
+      cereal::BinaryOutputArchive oa(ofs);
+      oa << *this; // it can also save unfinished trees
       ofs.flush();
       ofs.close();
       UPM_PRINT("Complete tree saved: " << m_save_path);
     }
-    catch (boost::archive::archive_exception &ex)
+    catch (cereal::Exception &ex)
     {
       UPM_ERROR("Exception during tree serialization: " << ex.what());
     }
@@ -310,7 +310,7 @@ private:
   ForestParam m_param;
   std::string m_save_path;
 
-  friend class boost::serialization::access;
+  friend class cereal::access;
   template<class Archive>
   void serialize(Archive &ar, const unsigned int version)
   {
@@ -318,7 +318,7 @@ private:
     ar & i_node;
     ar & m_param;
     ar & m_save_path;
-//    ar & root;
+    ar & root;
   }
 };
 

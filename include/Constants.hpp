@@ -14,13 +14,12 @@
 // ----------------------- INCLUDES --------------------------------------------
 #include <string>
 #include <vector>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
 #include <opencv2/opencv.hpp>
 
-namespace boost {
-namespace serialization {
+namespace cereal {
 
   template<class Archive>
   void serialize(Archive &ar, cv::Size &s, const unsigned version)
@@ -28,8 +27,7 @@ namespace serialization {
     ar & s.width & s.height;
   }
 
-} // namespace serialization
-} // namespace boost
+} // namespace cereal
 
 /** ****************************************************************************
  * @brief Parse configuration file constants
@@ -50,7 +48,7 @@ struct ForestParam
   std::string image_path;    // path to load images
   std::vector<int> features; // feature channels
 
-  friend class boost::serialization::access;
+  friend class cereal::access;
   template<class Archive>
   void serialize(Archive &ar, const unsigned int version)
   {

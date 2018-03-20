@@ -1,8 +1,10 @@
 /** ****************************************************************************
  *  @file    HeadPoseSample.hpp
  *  @brief   Real-time facial feature detection
- *  @author  Matthias Dantone
- *  @date    2011/05
+ *  @author  Roberto Valle Fernandez
+ *  @date    2015/06
+ *  @copyright All rights reserved.
+ *  Software developed by UPM PCR Group: http://www.dia.fi.upm.es/~pcr
  ******************************************************************************/
 
 // ------------------ RECURSION PROTECTION -------------------------------------
@@ -14,8 +16,8 @@
 #include <SplitGen.hpp>
 #include <ThresholdSplit.hpp>
 #include <vector>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/vector.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -149,7 +151,7 @@ public:
   float hp_variance;
 
 private:
-  friend class boost::serialization::access;
+  friend class cereal::access;
   template<class Archive>
   void serialize(Archive &ar, const unsigned int version)
   {

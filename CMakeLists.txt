@@ -19,6 +19,7 @@ endif()
 #-- Find include files
 set(face_headpose_bobetocalo_amdo16_include
   ${faces_framework_include}
+  ${CMAKE_CURRENT_LIST_DIR}/cereal
   ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
