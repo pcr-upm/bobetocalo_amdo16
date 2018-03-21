@@ -9,3 +9,13 @@ Head-Pose Estimation In-the-Wild Using a Random Forest
 Roberto Valle, José M. Buenaposada, Antonio Valdés, Luis Baumela.
 Conference on Articulated Motion and Deformable Objects, 9th International Conference, AMDO 2016, pp. 24-33, Palma de Mallorca, Spain, July 13-15, 2016.
 ```
+
+#### Requisites
+- faces_framework https://github.com/bobetocalo/faces_framework
+
+#### Installation
+The repository must be located inside the following directory:
+
+    faces_framework
+        └── headpose 
+             └── bobetocalo_amdo16 

@@ -173,11 +173,11 @@ public:
     (
     const std::shared_ptr<Sample> sample,
     std::shared_ptr<TreeNode<Sample>> node,
-    std::shared_ptr<Leaf> leaf
+    std::shared_ptr<Leaf> *leaf
     )
   {
     if (node->isLeaf())
-      leaf = node->getLeaf();
+      *leaf = node->getLeaf();
     else
     {
       if (node->eval(sample))
@@ -190,7 +190,7 @@ public:
   static bool
   load
     (
-    std::shared_ptr<Tree> tree,
+    std::shared_ptr<Tree> &tree,
     std::string path
     )
   {
@@ -205,7 +205,9 @@ public:
     try
     {
       cereal::BinaryInputArchive ia(ifs);
-      ia >> tree;
+      Tree *tree_aux = new Tree();
+      ia >> *tree_aux;
+      tree = std::make_shared<Tree>(*tree_aux);
       if (tree->isFinished())
       {
         UPM_PRINT("  Complete tree reloaded");

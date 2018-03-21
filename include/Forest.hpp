@@ -64,10 +64,10 @@ public:
   evaluateMT
     (
     const std::shared_ptr<Sample> sample,
-    std::shared_ptr<Leaf> leaf
+    std::shared_ptr<Leaf> *leaf
     ) const
   {
-    for (unsigned int i=0; i < numberOfTrees(); i++)
+    for (unsigned int i=0; i < numberOfTrees(); i++, leaf++)
       m_trees[i]->evaluateMT(sample, m_trees[i]->root, leaf);
   };
 
@@ -90,10 +90,10 @@ public:
         continue;
 
       char buffer[200];
-      sprintf(buffer, "%stree_%03d.txt", path.c_str(), i);
+      sprintf(buffer, "%stree_%03d.bin", path.c_str(), i);
       std::string tree_path = buffer;
       UPM_PRINT("  Load " << tree_path);
-      if (!load_tree(tree_path, m_trees))
+      if (not load_tree(tree_path, m_trees))
         return false;
     }
     return true;

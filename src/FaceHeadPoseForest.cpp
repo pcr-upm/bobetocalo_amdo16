@@ -38,11 +38,9 @@ FaceHeadPoseForest::FaceHeadPoseForest(std::string path)
   hp_param.min_patches = 20;
   hp_param.nimages = 2000;
   hp_param.npatches = 20;
-  hp_param.face_size = cv::Size(105,125);
+  hp_param.face_size = cv::Size(125,125);
   hp_param.patch_size = cv::Size(61,61);
-  hp_param.features.push_back(0);
-  hp_param.features.push_back(1);
-  hp_param.features.push_back(2);
+  hp_param.features = {0, 1, 2};
   hp_forest_param = hp_param;
 };
 
@@ -159,10 +157,10 @@ FaceHeadPoseForest::train
       cv::cvtColor(frame, img_gray, cv::COLOR_BGR2GRAY);
 
       /// Scale image
-      cv::Rect bbox = getBbox(rnd_data[i]);
-      bbox = intersection(bbox, cv::Rect(0,0,img_gray.cols,img_gray.rows));
-      cv::Mat face_scaled;
-      cv::resize(img_gray(bbox), face_scaled, hp_forest_param.face_size, 0, 0);
+      cv::Mat face_translated, T = (cv::Mat_<float>(2,3) << 1, 0, -rnd_data[i].bbox.pos.x, 0, 1, -rnd_data[i].bbox.pos.y);
+      cv::warpAffine(img_gray, face_translated, T, img_gray.size());
+      cv::Mat face_scaled, S = (cv::Mat_<float>(2,3) << hp_forest_param.face_size.width/rnd_data[i].bbox.pos.width, 0, 0, 0, hp_forest_param.face_size.height/rnd_data[i].bbox.pos.height, 0);
+      cv::warpAffine(face_translated, face_scaled, S, hp_forest_param.face_size);
 
       /// Extract patches from this face sample
       boost::shared_ptr<ImageSample> sample(new ImageSample(face_scaled, hp_forest_param.features, false));
@@ -229,18 +227,19 @@ FaceHeadPoseForest::process
   cv::cvtColor(frame, img_gray, cv::COLOR_BGR2GRAY);
 
   /// Analyze each detected face
-  for (unsigned int i=0; i < faces.size(); i++)
+  for (FaceAnnotation &face : faces)
   {
     /// Scale image
-    cv::Mat face_scaled;
-    cv::Rect bbox = intersection(faces[i].bbox.pos, cv::Rect(0,0,img_gray.cols,img_gray.rows));
-    cv::resize(img_gray(bbox), face_scaled, hp_forest_param.face_size, 0, 0);
+    cv::Mat face_translated, T = (cv::Mat_<float>(2,3) << 1, 0, -face.bbox.pos.x, 0, 1, -face.bbox.pos.y);
+    cv::warpAffine(img_gray, face_translated, T, img_gray.size());
+    cv::Mat face_scaled, S = (cv::Mat_<float>(2,3) << hp_forest_param.face_size.width/face.bbox.pos.width, 0, 0, 0, hp_forest_param.face_size.height/face.bbox.pos.height, 0);
+    cv::warpAffine(face_translated, face_scaled, S, hp_forest_param.face_size);
 
     /// Extract patches from this face sample
     boost::shared_ptr<ImageSample> sample(new ImageSample(face_scaled, hp_forest_param.features, true));
 
     /// Store head-pose angle
-    faces[i].headpose = getHeadPoseVotesMT(sample, hp_forest);
+    face.headpose = getHeadPoseVotesMT(sample, hp_forest);
   }
 };
 
@@ -268,8 +267,8 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   for (int x=0; x < width; x += hp_forest_param.stride)
     for (int y=0; y < height; y += hp_forest_param.stride)
     {
-      cv::Rect patch_box(x, y, forest.getParam().patch_size.width, forest.getParam().patch_size.height);
-      samples.push_back(std::make_shared<HeadPoseSample>(HeadPoseSample(sample, patch_box)));
+      cv::Rect bbox_patch(x, y, forest.getParam().patch_size.width, forest.getParam().patch_size.height);
+      samples.push_back(std::make_shared<HeadPoseSample>(HeadPoseSample(sample, bbox_patch)));
     }
 
   /// Process each patch
@@ -278,7 +277,7 @@ FaceHeadPoseForest::getHeadPoseVotesMT
   std::vector<std::shared_ptr<HeadPoseLeaf>> leafs;
   leafs.resize(samples.size() * num_trees);
   for (unsigned int i=0; i < samples.size(); i++)
-    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, samples[i], leafs[i*num_trees]));
+    e.submit(boost::bind(&Forest<HeadPoseSample>::evaluateMT, forest, samples[i], &leafs[i*num_trees]));
   e.join_all();
 
   /// Parse collected leafs
