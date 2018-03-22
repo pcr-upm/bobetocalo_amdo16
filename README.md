@@ -14,8 +14,21 @@ Conference on Articulated Motion and Deformable Objects, 9th International Confe
 - faces_framework https://github.com/bobetocalo/faces_framework
 
 #### Installation
-The repository must be located inside the following directory:
-
-    faces_framework
-        └── headpose 
-             └── bobetocalo_amdo16 
+This repository must be located inside the following directory:
+```
+faces_framework
+    └── headpose 
+        └── bobetocalo_amdo16
+```
+You need to have a C++ compiler (supporting C++11):
+```
+> mkdir release
+> cd release
+> cmake ..
+> make -j$(nproc)
+> cd ..
+```
+#### Usage
+```
+> ./release/face_headpose_bobetocalo_amdo16_test
+```
