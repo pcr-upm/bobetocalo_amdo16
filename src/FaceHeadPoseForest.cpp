@@ -131,7 +131,6 @@ FaceHeadPoseForest::train
 
     /// Select random annotations for this head-pose
     std::vector<FaceAnnotation> rnd_data;
-    srand(tree_idx+1);
     for (auto it=hp_anns.origin(); it < hp_anns.origin()+hp_anns.num_elements(); it++)
       if (not (*it).empty())
         rnd_data.insert(rnd_data.end(), (*it).begin(), (*it).begin()+imgs_per_class);
@@ -167,8 +166,8 @@ FaceHeadPoseForest::train
 
       /// Generate random patches
       boost::uniform_int<> dist_x(0, face_scaled.cols-hp_forest_param.patch_size.width-1);
-      boost::variate_generator< boost::mt19937&, boost::uniform_int<> > rand_x(rng, dist_x);
       boost::uniform_int<> dist_y(0, face_scaled.rows-hp_forest_param.patch_size.height-1);
+      boost::variate_generator< boost::mt19937&, boost::uniform_int<> > rand_x(rng, dist_x);
       boost::variate_generator< boost::mt19937&, boost::uniform_int<> > rand_y(rng, dist_y);
       for (int j=0; j < hp_forest_param.npatches; j++)
       {

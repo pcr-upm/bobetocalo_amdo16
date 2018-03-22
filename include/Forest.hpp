@@ -67,8 +67,11 @@ public:
     std::shared_ptr<Leaf> *leaf
     ) const
   {
-    for (unsigned int i=0; i < numberOfTrees(); i++, leaf++)
-      m_trees[i]->evaluateMT(sample, m_trees[i]->root, leaf);
+    for (const std::shared_ptr<Tree<Sample>> &tree : m_trees)
+    {
+      tree->evaluateMT(sample, tree->root, leaf);
+      leaf++;
+    }
   };
 
   bool
